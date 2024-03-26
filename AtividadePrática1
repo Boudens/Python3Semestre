@@ -1,0 +1,106 @@
+from abc import ABC, abstractclassmethod
+import os
+class Personagem(ABC):
+    contador = 0
+    def __init__(self,qtdVida,qtdDanoAtaque,nome):
+        self.qtdVida = qtdVida
+        self.qtdDanoAtaque = qtdDanoAtaque
+        self.nome = nome
+        Personagem.contador +=1
+
+    @abstractclassmethod
+    def Ataque(self):
+        pass
+    
+    def Mensagem(self,texto):
+        print (texto)
+
+    def get_nome(self):
+        return self.nome
+    
+    def set_nome(self,novoNome):
+        if(len(novoNome) < 0 ):
+            print("Nome inválido")
+        else:
+            self.nome = novoNome
+    
+    def get_qtdVida(self):
+        return self.qtdVida
+    
+    def set_qtdVida(self,novoQtdVida):
+        if(novoQtdVida <= 0 ):
+            print("Número não pode ser menor ou igual a zero")
+        else:
+            self.qtdVida = novoQtdVida
+
+    def get_qtdDanoAtaque(self):
+        return self.qtdDanoAtaque
+    
+    def set_qtdDanoAtaque(self,novoQtdDanoAtaque):
+        if(novoQtdDanoAtaque < 0 ):
+            print("Número não pode ser negativo")
+        else:
+            self.qtdDanoAtaque = novoQtdDanoAtaque
+
+    @classmethod
+    def get_qtd_personagens(cls):
+        return cls.contador
+    
+    def __str__(self):
+        return f"Nome: {self.nome}\nVida: {self.qtdVida}\nAtaque: {self.qtdDanoAtaque}\n"     
+ 
+class Inimigo(Personagem):
+    def __init__(self, qtdVida, qtdDanoAtaque,nome):
+        super().__init__(qtdVida, qtdDanoAtaque,nome)
+
+    def Ataque(self,alvo : "Player"):
+        alvo.qtdVida = alvo.qtdVida - self.qtdDanoAtaque  
+        print(f"O ataque causou {self.qtdDanoAtaque} e o player tem {alvo.qtdVida} de vida.")
+        
+        if(alvo.qtdVida <= 0):
+            print("O Player foi derrotado!")
+
+class Curandeiro(Personagem):
+    def __init__(self, qtdVida, qtdDanoAtaque, nome, qtdCura):
+        super().__init__(qtdVida, qtdDanoAtaque, nome)
+        self.qtdCura = qtdCura
+
+    def Ataque(self):
+        print("Esse personagem não pode efetuar um ataque.")
+
+    def usarCura(self,alvo : "Personagem"):
+        alvo.qtdVida = alvo.qtdVida + self.qtdCura
+        print(f"O curandeiro realizou uma cura de {self.qtdCura} no player {alvo.nome}")
+
+   
+
+class Player(Personagem):
+    def __init__(self, qtdVida, qtdDanoAtaque,nome):
+        super().__init__(qtdVida, qtdDanoAtaque,nome)
+
+    def Ataque(self,alvo : "Personagem"):
+        if(alvo.__class__.__name__ == "Inimigo" and alvo.qtdVida>0):
+            alvo.qtdVida = alvo.qtdVida - self.qtdDanoAtaque
+            print(f"O ataque causou {self.qtdDanoAtaque} e o inimigo {alvo.nome} tem {alvo.qtdVida} de vida.")
+        elif(alvo.__class__.__name__ == "Curandeiro" and alvo.qtdVida>0):
+            alvo.qtdVida = alvo.qtdVida - self.qtdDanoAtaque
+            print(f"O ataque causou {self.qtdDanoAtaque} e o Curandeiro tem {alvo.qtdVida} de vida.")
+        
+if __name__ == '__main__':
+    os.system('cls')
+    player1 = Player(10,5,"Herói")
+    esqueleto = Inimigo(10,2,"Esqueleto")
+    xama = Curandeiro(5,0,"Xamã",3)
+
+    xama.Ataque()
+    #print(player1)
+    #print(Esqueleto)
+    #Esqueleto.Ataque(player1)
+    player1.Ataque(esqueleto)
+    esqueleto.Ataque(player1)
+    xama.usarCura(player1)
+
+
+    #print(player1.get_nome())
+
+    print(f"A quantidade de personagens instanciados é: {Personagem.get_qtd_personagens()}")
